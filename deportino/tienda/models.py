@@ -1,6 +1,27 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser, Group, Permission
 
-# Create your models here.
+# Crea tus modelos aquí.
+
+class Usuario(AbstractUser):
+    direccion = models.CharField(max_length=255)
+    numero_de_telefono = models.CharField(max_length=10)
+    grupos = models.ManyToManyField(
+        Group,
+        related_name='usuarios_con_grupos',  # Cambiamos el related_name
+        blank=True,
+        help_text=('Los grupos a los que pertenece este usuario. Un usuario obtendrá todos los permisos '
+                   'otorgados a cada uno de sus grupos.'),
+        verbose_name=('grupos'),
+    )
+    permisos_de_usuario = models.ManyToManyField(
+        Permission,
+        related_name='usuarios_con_permisos',  # Cambiamos el related_name
+        blank=True,
+        help_text=('Permisos específicos para este usuario.'),
+        verbose_name=('permisos de usuario'),
+    )
+
 
 class Categoria(models.Model):
     nombre = models.CharField(max_length=200)
