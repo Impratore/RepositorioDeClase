@@ -1,26 +1,22 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser, Group, Permission
 
 # Crea tus modelos aquí.
 
-class Usuario(AbstractUser):
-    direccion = models.CharField(max_length=255)
-    numero_de_telefono = models.CharField(max_length=10)
-    grupos = models.ManyToManyField(
-        Group,
-        related_name='usuarios_con_grupos',  # Cambiamos el related_name
-        blank=True,
-        help_text=('Los grupos a los que pertenece este usuario. Un usuario obtendrá todos los permisos '
-                   'otorgados a cada uno de sus grupos.'),
-        verbose_name=('grupos'),
-    )
-    permisos_de_usuario = models.ManyToManyField(
-        Permission,
-        related_name='usuarios_con_permisos',  # Cambiamos el related_name
-        blank=True,
-        help_text=('Permisos específicos para este usuario.'),
-        verbose_name=('permisos de usuario'),
-    )
+class Cliente(models.Model):
+    nombre = models.CharField(max_length=200)
+    apellidos = models.CharField(max_length=200)
+    email = models.EmailField(unique=True)
+    direccion = models.CharField(max_length=200)
+    ciudad = models.CharField(max_length=100)
+    codigo_postal = models.CharField(max_length=10)
+    telefono = models.CharField(max_length=15)
+
+    class Meta:
+        verbose_name = 'cliente'
+        verbose_name_plural = 'clientes'
+
+    def __str__(self):
+        return f'{self.nombre} {self.apellidos}'
 
 
 class Categoria(models.Model):
@@ -58,3 +54,33 @@ class Producto(models.Model):
 
     def __str__(self):
         return self.nombre
+
+class Pedido(models.Model):
+    cliente = models.ForeignKey(Cliente, related_name='pedidos', on_delete=models.CASCADE)
+    fecha = models.DateTimeField(auto_now_add=True)
+    direccion_entrega = models.CharField(max_length=250)
+    ciudad_entrega = models.CharField(max_length=100)
+    codigo_postal_entrega = models.CharField(max_length=10)
+    pagado = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = 'pedido'
+        verbose_name_plural = 'pedidos'
+
+    def __str__(self):
+        return f'Pedido {self.id}'
+
+class Reseña(models.Model):
+    producto = models.ForeignKey(Producto, related_name='reseñas', on_delete=models.CASCADE)
+    cliente = models.ForeignKey(Cliente, related_name='reseñas', on_delete=models.CASCADE)
+    comentario = models.TextField()
+    calificacion = models.PositiveIntegerField()
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'reseña'
+        verbose_name_plural = 'reseñas'
+        ordering = ['-fecha']
+
+    def __str__(self):
+        return f'Reseña de {self.cliente} para {self.producto}'
