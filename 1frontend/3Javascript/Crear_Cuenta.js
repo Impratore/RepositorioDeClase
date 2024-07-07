@@ -1,45 +1,46 @@
-document.getElementById('registroForm').addEventListener('submit', function(event) {
+document.getElementById('registro-form').addEventListener('submit', function(event) {
     event.preventDefault();
 
-    let nombre = document.getElementById('nombre').value;
-    let apellido = document.getElementById('apellido').value;
-    let correo = document.getElementById('correo').value;
-    let direccion = document.getElementById('direccion').value;
-    let ciudad = document.getElementById('ciudad').value;
-    let codigo_postal = document.getElementById('codigo_postal').value;
-    let telefono = document.getElementById('telefono').value;
-    let contra = document.getElementById('contra').value;
-    let confi_contra = document.getElementById('confi_contra').value;
+    const nombre = document.getElementById('nombre').value;
+    const apellido = document.getElementById('apellido').value;
+    const correo = document.getElementById('correo').value;
+    const direccion = document.getElementById('direccion').value;
+    const ciudad = document.getElementById('ciudad').value;
+    const codigo_postal = document.getElementById('codigo_postal').value;
+    const telefono = document.getElementById('telefono').value;
 
-    if (contra !== confi_contra) {
-        alert('Las contraseñas no coinciden');
-        return;
-    }
-
-    let datosCliente = {
+    const datos = {
         nombre: nombre,
         apellidos: apellido,
         email: correo,
         direccion: direccion,
         ciudad: ciudad,
         codigo_postal: codigo_postal,
-        telefono: telefono,
+        telefono: telefono
     };
 
-    fetch('/api/registrar/', {
+    fetch('http://127.0.0.1:8000/api/registrar/', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json'
         },
-        body: JSON.stringify(datosCliente),
+        body: JSON.stringify(datos)
     })
     .then(response => response.json())
     .then(data => {
-        console.log('Success:', data);
-        alert('Usuario registrado con éxito');
+        const mensajeDiv = document.getElementById('mensaje');
+        if (data.success) {
+            mensajeDiv.textContent = 'Usuario registrado exitosamente.';
+            mensajeDiv.style.color = 'green';
+        } else {
+            mensajeDiv.textContent = 'Error al registrar el usuario.';
+            mensajeDiv.style.color = 'red';
+        }
     })
-    .catch((error) => {
+    .catch(error => {
+        const mensajeDiv = document.getElementById('mensaje');
+        mensajeDiv.textContent = 'Error al registrar el usuario.';
+        mensajeDiv.style.color = 'red';
         console.error('Error:', error);
-        alert('Error al registrar el usuario');
     });
 });
